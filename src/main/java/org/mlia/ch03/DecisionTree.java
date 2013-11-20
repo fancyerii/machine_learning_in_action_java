@@ -283,17 +283,16 @@ class DecisionTreeNode implements Serializable{
 	}
 	
 	private static void recursivePrint(DecisionTreeNode curNode, StringBuilder sb, int depth){
-		printTab(depth,sb);
-		sb.append("["+curNode.featureName).append("]\n");
+ 
 		for(int i=0;i<curNode.children.size();i++){
 			double fv=curNode.featureValues.get(i);
 			Object child=curNode.children.get(i);
-			printTab(depth+1,sb);
+			printTab(depth,sb);
 			if(child instanceof String){
 				sb.append("if (["+curNode.featureName+"]=="+fv+") then classify it as ").append((String)child).append("\n");
 			}else{
 				sb.append("if (["+curNode.featureName+"]=="+fv+") then").append("\n");
-				recursivePrint((DecisionTreeNode)child, sb, depth+2);
+				recursivePrint((DecisionTreeNode)child, sb, depth+1);
 			}
 			 
 		}		
