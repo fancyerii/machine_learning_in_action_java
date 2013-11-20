@@ -17,7 +17,9 @@ import java.util.PriorityQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.mlia.utils.DataSet;
 import org.mlia.utils.FileTools;
+
  
 
 public class KNN {
@@ -374,30 +376,5 @@ class PriorityQueueElem{
 	public PriorityQueueElem(double data,int index){
 		this.data=data;
 		this.index=index;
-	}
-}
-
-class DataSet{
-	public String[] labels;
-	public double[][] data;
-	
-	@Override
-	public String toString(){
-		StringBuilder sb=new StringBuilder();
-		sb.append("labels\n");
-		for(String label:labels){
-			sb.append("\t").append(label);
-		}
-		sb.append("\n");
-		sb.append("data\n");
-		for(double[] row:data){
-			for(double cell:row){
-				sb.append("\t").append(cell);
-			}
-			sb.append("\n");
-		}
-		
-		
-		return sb.toString();
 	}
 }
