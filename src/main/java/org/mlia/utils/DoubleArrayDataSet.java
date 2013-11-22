@@ -1,6 +1,6 @@
 package org.mlia.utils;
 
-public class DataSet{
+public class DoubleArrayDataSet{
 	public String[] labels;
 	public double[][] data;
 	
@@ -11,11 +11,11 @@ public class DataSet{
 		return data[0].length;
 	}
 	
-	public DataSet(){
+	public DoubleArrayDataSet(){
 		
 	}
 	
-	public DataSet(double[][] data,String[] labels){
+	public DoubleArrayDataSet(double[][] data,String[] labels){
 		this.data=data;
 		this.labels=labels;
 	}

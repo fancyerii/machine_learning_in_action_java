@@ -12,8 +12,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.mlia.utils.DataSet;
+ 
 import org.mlia.utils.FileTools;
+import org.mlia.utils.ObjectArrayDataSet;
 
 public class DecisionTree {
 
@@ -22,15 +23,15 @@ public class DecisionTree {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		DataSet ds=DecisionTree.createDataSet();
+		ObjectArrayDataSet ds=DecisionTree.createDataSet();
 		System.out.println(ds);
 		double ent=DecisionTree.calcShannonEnt(ds);
 		System.out.println(ent);
 		
 		
-		DataSet split1=DecisionTree.splitDataSet(ds, 0, 1);
+		ObjectArrayDataSet split1=DecisionTree.splitDataSet(ds, 0, 1);
 		System.out.println(split1);
-		DataSet split2=DecisionTree.splitDataSet(ds, 0, 0);
+		ObjectArrayDataSet split2=DecisionTree.splitDataSet(ds, 0, 0);
 		System.out.println(split2);
 		
 		int bestFeature=DecisionTree.chooseBestFeatureToSplit(ds);
@@ -45,24 +46,20 @@ public class DecisionTree {
 		DecisionTreeNode tree=DecisionTree.createTree(ds, featureNames);
 		System.out.println(tree.printTree());
 		
-		System.out.println(DecisionTree.classify(tree, featureNames, new double[]{1,0}));
+		System.out.println(DecisionTree.classify(tree, featureNames, new Object[]{1,0}));
 		
-		System.out.println(DecisionTree.classify(tree, featureNames, new double[]{1,1}));
+		System.out.println(DecisionTree.classify(tree, featureNames, new Object[]{1,1}));
 		
-		System.out.println(DecisionTree.classify(tree, featureNames, new double[]{0,1}));
+		System.out.println(DecisionTree.classify(tree, featureNames, new Object[]{0,1}));
 		
-		System.out.println(DecisionTree.classify(tree, featureNames, new double[]{0,0}));
+		System.out.println(DecisionTree.classify(tree, featureNames, new Object[]{0,0}));
  
 		DecisionTree.classifyLenses();
 	}
 	
 	
 	public static void classifyLenses() throws Exception{
-		Map<String,Double> ageMap=new HashMap<String,Double>();
-		Map<String,Double> prescriptMap=new HashMap<String,Double>();
-		Map<String,Double> astigmaticMap=new HashMap<String, Double>();
-		Map<String,Double> tearRateMap=new HashMap<String, Double>();
-		DataSet ds=readLensesData(ageMap, prescriptMap, astigmaticMap, tearRateMap);
+		ObjectArrayDataSet ds=readLensesData();
 		String[] featureNames=new String[]{
 			"age",
 			"prescript",
@@ -75,64 +72,26 @@ public class DecisionTree {
 		
 	}
 	
-	private static DataSet readLensesData(Map<String,Double> ageMap,Map<String,Double> prescriptMap,
-				 Map<String,Double> astigmaticMap,Map<String,Double> tearRateMap) throws Exception{
+	private static ObjectArrayDataSet readLensesData() throws Exception{
 		String filePath="src/main/resources/ch03/lenses.txt";
 		List<String> lines=FileTools.readFile2List(filePath);
 
-		double[][] data=new double[lines.size()][];
+		Object[][] data=new Object[lines.size()][];
 		String[] labels=new String[lines.size()];
-		int ageCurrent=0;
-		int prescriptCurrent=0;
-		int astigmaticCurrent=0;
-		int tearRateCurrent=0;
+		
 		int i=0;
 		for(Iterator<String> iter=lines.iterator();i<lines.size();i++){
 			String line=iter.next();
 			String[] array=line.split("\t");
 			
-			String ageStr=array[0];
-			double age=0;
-			if(ageMap.containsKey(ageStr)){
-				age=ageMap.get(ageStr);
-			}else{
-				age=++ageCurrent;
-				ageMap.put(ageStr, age);
-			}
+			 
 			
-			String prescriptStr=array[1];
-			double prescript=0;
-			if(prescriptMap.containsKey(prescriptStr)){
-				prescript=prescriptMap.get(prescriptStr);
-			}else{
-				prescript=++prescriptCurrent;
-				prescriptMap.put(prescriptStr, prescript);
-			}
-			
-			String astigmaticStr=array[2];
-			double astigmatic=0;
-			if(astigmaticMap.containsKey(astigmaticStr)){
-				astigmatic=astigmaticMap.get(astigmaticStr);
-			}else{
-				astigmatic=++astigmaticCurrent;
-				astigmaticMap.put(astigmaticStr, astigmatic);
-			}
-			
-			String tearRateStr=array[3];
-			double tearRate=0;
-			if(tearRateMap.containsKey(tearRateStr)){
-				tearRate=tearRateMap.get(tearRateStr);
-			}else{
-				tearRate=++tearRateCurrent;
-				tearRateMap.put(tearRateStr, tearRate);
-			}
-			
-			data[i]=new double[]{age,prescript,astigmatic,tearRate};
+			data[i]=new Object[]{array[0],array[1],array[2],array[3]};
 			labels[i]=array[4];
 			
 		}
 		
-		return new DataSet(data,labels);
+		return new ObjectArrayDataSet(data,labels);
 		
 	}
 	
@@ -147,7 +106,7 @@ public class DecisionTree {
 		return true;
 	}
 	
-	public static DecisionTreeNode createTree(DataSet ds,String[] featureNames){
+	public static DecisionTreeNode createTree(ObjectArrayDataSet ds,String[] featureNames){
 		String[] classList=ds.labels;
 		if(onlyOneClass(classList)){// stop when all classes are the same.
 			DecisionTreeNode node=new DecisionTreeNode();
@@ -171,9 +130,9 @@ public class DecisionTree {
 		for(int i=bestFeature+1;i<featureNames.length;i++){
 			subfeatureNames[i-1]=featureNames[i];
 		}
-		double[] featValues=ds.getCol(bestFeature);
-		Set<Double> uniqueVals=getUniqFeatures(featValues);
-		for(double value:uniqueVals){
+		Object[] featValues=ds.getCol(bestFeature);
+		Set<Object> uniqueVals=getUniqFeatures(featValues);
+		for(Object value:uniqueVals){
 			
 			
 			DecisionTreeNode child=createTree(splitDataSet(ds, bestFeature, value), subfeatureNames);
@@ -210,26 +169,26 @@ public class DecisionTree {
 		return maxCountClass;
 	}
 	
-	private static Set<Double> getUniqFeatures(double[] array){
-		Set<Double> set=new HashSet<Double>();
-		for(double d:array){
+	private static Set<Object> getUniqFeatures(Object[] array){
+		Set<Object> set=new HashSet<Object>();
+		for(Object d:array){
 			set.add(d);
 		}
 		
 		return set;
 	}
  
-	public static int chooseBestFeatureToSplit(DataSet ds){
+	public static int chooseBestFeatureToSplit(ObjectArrayDataSet ds){
 		int numFeatures=ds.getColNumber();
 		double baseEntropy=calcShannonEnt(ds);
 		double bestInfoGain=0;
 		int bestFeature=-1;
 		for(int i=0;i<numFeatures;i++){
-			double[] featList=ds.getCol(i);
-			Set<Double> uniqueVals=getUniqFeatures(featList);
+			Object[] featList=ds.getCol(i);
+			Set<Object> uniqueVals=getUniqFeatures(featList);
 			double newEntropy=0;
-			for(double value:uniqueVals){
-				DataSet subDataSet = splitDataSet(ds, i, value);
+			for(Object value:uniqueVals){
+				ObjectArrayDataSet subDataSet = splitDataSet(ds, i, value);
 				double prob = subDataSet.getRowNumber()*1.0/ds.getRowNumber();
 			    newEntropy += prob * calcShannonEnt(subDataSet);
 			}
@@ -244,14 +203,14 @@ public class DecisionTree {
 		
 	}
 	
-	public static DataSet splitDataSet(DataSet ds, int axis, double value){
-		DataSet split=new DataSet();
-		ArrayList<double[]> data=new ArrayList<double[]>();
+	public static ObjectArrayDataSet splitDataSet(ObjectArrayDataSet ds, int axis, Object value){
+		ObjectArrayDataSet split=new ObjectArrayDataSet();
+		ArrayList<Object[]> data=new ArrayList<Object[]>();
 		ArrayList<String> labels=new ArrayList<String>();
 		for(int i=0;i<ds.getRowNumber();i++){
-			double[] row=ds.data[i];
-			if(row[axis]==value){
-				double[] newRow=copyArrayExceptionOneElem(row, axis);
+			Object[] row=ds.data[i];
+			if(row[axis].equals(value)){
+				Object[] newRow=copyArrayExceptionOneElem(row, axis);
 				
 				data.add(newRow);
 				labels.add(ds.labels[i]);
@@ -259,7 +218,7 @@ public class DecisionTree {
 		}
 		
 		
-		split.data=new double[data.size()][];
+		split.data=new Object[data.size()][];
 		split.labels=new String[data.size()];
 		for(int i=0;i<split.data.length;i++){
 			split.data[i]=data.get(i);
@@ -268,9 +227,9 @@ public class DecisionTree {
 		return split;
 	}
 	
-	public static DataSet createDataSet(){
-		DataSet ds=new DataSet();
-		double[][] data=new double[][]{
+	public static ObjectArrayDataSet createDataSet(){
+		ObjectArrayDataSet ds=new ObjectArrayDataSet();
+		Object[][] data=new Object[][]{
 			{1, 1},
 			{1, 1},
 			{1, 0},
@@ -288,8 +247,8 @@ public class DecisionTree {
 		return ds;
 	}
 	
-	private static double[] copyArrayExceptionOneElem(double[] array, int index){
-		double[] newArray=new double[array.length-1];
+	private static Object[] copyArrayExceptionOneElem(Object[] array, int index){
+		Object[] newArray=new Object[array.length-1];
 		for(int i=0;i<index;i++){
 			newArray[i]=array[i];
 		}
@@ -310,14 +269,14 @@ public class DecisionTree {
 		return newArray;		
 	}
 	
-	public static String classify(DecisionTreeNode tree,String[] featureNames, double[] testVec){
+	public static String classify(DecisionTreeNode tree,String[] featureNames, Object[] testVec){
 
-		double feature=testVec[tree.featureIdx];
+		Object feature=testVec[tree.featureIdx];
 		String[] subFeatureNames=copyArrayExceptionOneElem(featureNames, tree.featureIdx);
-		double[] subVec=copyArrayExceptionOneElem(testVec, tree.featureIdx);
+		Object[] subVec=copyArrayExceptionOneElem(testVec, tree.featureIdx);
 		for(int i=0;i<tree.children.size();i++){
-			double fv=tree.featureValues.get(i);
-			if(fv==feature){
+			Object fv=tree.featureValues.get(i);
+			if(fv.equals(feature)){
 				Object child=tree.children.get(i);
 				if(child instanceof String){
 					return (String)child;
@@ -330,7 +289,7 @@ public class DecisionTree {
 		return null;
 	}
 	
-	public static double calcShannonEnt(DataSet ds){
+	public static double calcShannonEnt(ObjectArrayDataSet ds){
 		int numEntries=ds.getRowNumber();
 		Map<String,Integer> labelCounts=new HashMap<String,Integer>();
 		for(int i=0;i<numEntries;i++){
@@ -355,7 +314,7 @@ class DecisionTreeNode implements Serializable{
 	public int featureIdx;
 	public String featureName;
 	public ArrayList<Object> children=new ArrayList<Object>();
-	public ArrayList<Double> featureValues=new ArrayList<Double>();
+	public ArrayList<Object> featureValues=new ArrayList<Object>();
 	
 	public String printTree(){
 		StringBuilder sb=new StringBuilder();
@@ -372,13 +331,13 @@ class DecisionTreeNode implements Serializable{
 	private static void recursivePrint(DecisionTreeNode curNode, StringBuilder sb, int depth){
  
 		for(int i=0;i<curNode.children.size();i++){
-			double fv=curNode.featureValues.get(i);
+			Object fv=curNode.featureValues.get(i);
 			Object child=curNode.children.get(i);
 			printTab(depth,sb);
 			if(child instanceof String){
-				sb.append("if (["+curNode.featureName+"]=="+fv+") then classify it as ").append((String)child).append("\n");
+				sb.append("if (["+curNode.featureName+"]=='"+fv+"') then classify it as {").append((String)child).append("}\n");
 			}else{
-				sb.append("if (["+curNode.featureName+"]=="+fv+") then").append("\n");
+				sb.append("if (["+curNode.featureName+"]=='"+fv+"') then").append("\n");
 				recursivePrint((DecisionTreeNode)child, sb, depth+1);
 			}
 			 
@@ -391,13 +350,13 @@ class DecisionTreeNode implements Serializable{
 		
 		sb.append(featureName).append("\n");
 		for(int i=0;i<children.size();i++){
-			double fv=featureValues.get(i);
+			Object fv=featureValues.get(i);
 			Object child=children.get(i);
 			sb.append("\t");
 			if(child instanceof String){
-				sb.append("[if v=="+fv+"] classify as ").append((String)child);
+				sb.append("[if v=='"+fv+"'] classify as ").append((String)child);
 			}else{
-				sb.append("[if v=="+fv+"] need check other features");
+				sb.append("[if v=='"+fv+"'] need check other features");
 			}
 			sb.append("\n");
 		}

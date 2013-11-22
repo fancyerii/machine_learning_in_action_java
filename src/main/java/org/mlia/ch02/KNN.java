@@ -17,7 +17,7 @@ import java.util.PriorityQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mlia.utils.DataSet;
+import org.mlia.utils.DoubleArrayDataSet;
 import org.mlia.utils.FileTools;
 
  
@@ -29,7 +29,7 @@ public class KNN {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		DataSet ds=createDataSet();
+		DoubleArrayDataSet ds=createDataSet();
 		System.out.println(ds);
 		double dist=calcEuclideanDistance(new double[]{1,0,0,1}, new double[]{7,6,9,4});
 		System.out.println(dist);
@@ -219,12 +219,12 @@ public class KNN {
 		
 	}
 	
-	public static DataSet file2Matrix(String filePath) throws IOException{
+	public static DoubleArrayDataSet file2Matrix(String filePath) throws IOException{
 		return file2Matrix(new FileInputStream(filePath));
 	}
 	
-	public static DataSet file2Matrix(InputStream is) throws IOException{
-		DataSet dataSet=new DataSet(); 
+	public static DoubleArrayDataSet file2Matrix(InputStream is) throws IOException{
+		DoubleArrayDataSet dataSet=new DoubleArrayDataSet(); 
 		List<String> lines=FileTools.readFile2List(is);
 		String[] labels=new String[lines.size()];
 		double[][] data=new double[lines.size()][];
@@ -252,7 +252,7 @@ public class KNN {
 		return dataSet;
 	}
 	
-	public static void autoNorm(DataSet dataSet,double[] minVals,double[] ranges){
+	public static void autoNorm(DoubleArrayDataSet dataSet,double[] minVals,double[] ranges){
 		double[][] data=dataSet.data;
 		int cols=data[0].length;
 		for(int col=0;col<cols;col++){
@@ -290,7 +290,7 @@ public class KNN {
 		System.out.println("liters of ice cream consumed per year?");
 		line=br.readLine();
 		double iceCream=Double.valueOf(line);
-		DataSet ds=KNN.file2Matrix("src/main/resources/ch02/datingTestSet2.txt");
+		DoubleArrayDataSet ds=KNN.file2Matrix("src/main/resources/ch02/datingTestSet2.txt");
 		int cols=ds.data[0].length;
 		double[] minVals=new double[cols];
 		double[] ranges=new double[cols];
@@ -307,7 +307,7 @@ public class KNN {
 	
 	public static void datingClassTest() throws IOException{
 		double hoRatio=0.10;
-		DataSet ds=KNN.file2Matrix("src/main/resources/ch02/datingTestSet2.txt");
+		DoubleArrayDataSet ds=KNN.file2Matrix("src/main/resources/ch02/datingTestSet2.txt");
 		int cols=ds.data[0].length;
 		double[] minVals=new double[cols];
 		double[] ranges=new double[cols];
@@ -349,8 +349,8 @@ public class KNN {
 		return result;
 	}
 	
-	public static DataSet createDataSet(){
-		DataSet dataSet=new DataSet();
+	public static DoubleArrayDataSet createDataSet(){
+		DoubleArrayDataSet dataSet=new DoubleArrayDataSet();
 		String[] labels=new String[]{
 			"A",
 			"A",
