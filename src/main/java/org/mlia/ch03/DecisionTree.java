@@ -1,22 +1,27 @@
 package org.mlia.ch03;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.mlia.utils.DataSet;
+import org.mlia.utils.FileTools;
 
 public class DecisionTree {
 
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		DataSet ds=DecisionTree.createDataSet();
 		System.out.println(ds);
 		double ent=DecisionTree.calcShannonEnt(ds);
@@ -47,6 +52,88 @@ public class DecisionTree {
 		System.out.println(DecisionTree.classify(tree, featureNames, new double[]{0,1}));
 		
 		System.out.println(DecisionTree.classify(tree, featureNames, new double[]{0,0}));
+ 
+		DecisionTree.classifyLenses();
+	}
+	
+	
+	public static void classifyLenses() throws Exception{
+		Map<String,Double> ageMap=new HashMap<String,Double>();
+		Map<String,Double> prescriptMap=new HashMap<String,Double>();
+		Map<String,Double> astigmaticMap=new HashMap<String, Double>();
+		Map<String,Double> tearRateMap=new HashMap<String, Double>();
+		DataSet ds=readLensesData(ageMap, prescriptMap, astigmaticMap, tearRateMap);
+		String[] featureNames=new String[]{
+			"age",
+			"prescript",
+			"astigmatic",
+			"tearRate"
+		};
+		DecisionTreeNode tree=DecisionTree.createTree(ds, featureNames);
+		System.out.println(tree.printTree());
+		
+		
+	}
+	
+	private static DataSet readLensesData(Map<String,Double> ageMap,Map<String,Double> prescriptMap,
+				 Map<String,Double> astigmaticMap,Map<String,Double> tearRateMap) throws Exception{
+		String filePath="src/main/resources/ch03/lenses.txt";
+		List<String> lines=FileTools.readFile2List(filePath);
+
+		double[][] data=new double[lines.size()][];
+		String[] labels=new String[lines.size()];
+		int ageCurrent=0;
+		int prescriptCurrent=0;
+		int astigmaticCurrent=0;
+		int tearRateCurrent=0;
+		int i=0;
+		for(Iterator<String> iter=lines.iterator();i<lines.size();i++){
+			String line=iter.next();
+			String[] array=line.split("\t");
+			
+			String ageStr=array[0];
+			double age=0;
+			if(ageMap.containsKey(ageStr)){
+				age=ageMap.get(ageStr);
+			}else{
+				age=++ageCurrent;
+				ageMap.put(ageStr, age);
+			}
+			
+			String prescriptStr=array[1];
+			double prescript=0;
+			if(prescriptMap.containsKey(prescriptStr)){
+				prescript=prescriptMap.get(prescriptStr);
+			}else{
+				prescript=++prescriptCurrent;
+				prescriptMap.put(prescriptStr, prescript);
+			}
+			
+			String astigmaticStr=array[2];
+			double astigmatic=0;
+			if(astigmaticMap.containsKey(astigmaticStr)){
+				astigmatic=astigmaticMap.get(astigmaticStr);
+			}else{
+				astigmatic=++astigmaticCurrent;
+				astigmaticMap.put(astigmaticStr, astigmatic);
+			}
+			
+			String tearRateStr=array[3];
+			double tearRate=0;
+			if(tearRateMap.containsKey(tearRateStr)){
+				tearRate=tearRateMap.get(tearRateStr);
+			}else{
+				tearRate=++tearRateCurrent;
+				tearRateMap.put(tearRateStr, tearRate);
+			}
+			
+			data[i]=new double[]{age,prescript,astigmatic,tearRate};
+			labels[i]=array[4];
+			
+		}
+		
+		return new DataSet(data,labels);
+		
 	}
 	
 	private static boolean onlyOneClass(String[] classList){

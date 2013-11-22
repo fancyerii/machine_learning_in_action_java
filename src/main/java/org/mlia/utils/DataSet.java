@@ -11,6 +11,15 @@ public class DataSet{
 		return data[0].length;
 	}
 	
+	public DataSet(){
+		
+	}
+	
+	public DataSet(double[][] data,String[] labels){
+		this.data=data;
+		this.labels=labels;
+	}
+	
 	public double[] getCol(int index){
 		double[] col=new double[data.length];
 		for(int i=0;i<data.length;i++){
