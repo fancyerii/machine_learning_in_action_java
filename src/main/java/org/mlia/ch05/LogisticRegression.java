@@ -1,4 +1,4 @@
-package ch05;
+package org.mlia.ch05;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.Random;
 
 import org.mlia.utils.DoubleArrayDataSet;
 import org.mlia.utils.FileTools;
+import org.mlia.utils.MathTools;
 
 public class LogisticRegression {
 
@@ -38,61 +39,9 @@ public class LogisticRegression {
 		LogisticRegression.multiTest();
 	}
 	
-	private static double sigmoid(double x){
-		return 1.0/(1+Math.exp(-x));
-	}
+
 	
-	private static double[] vecSubtraction(double[] v1, double[] v2){
-		if(v1.length!=v2.length){
-			throw new RuntimeException("vector's size don't match");
-		}
-		double[] v=new double[v1.length];
-		for(int i=0;i<v.length;i++){
-			v[i]=v1[i]-v2[i];
-		}
-		return v;
-	}
-	
-	private static double[] maxtrixMultiply(double[][] matrix,double[] vec){
-		if(matrix[0].length!=vec.length){
-			throw new RuntimeException("matrix's col <. vec's row");
-		}
-		
-		double[] result=new double[matrix.length];
-		for(int i=0;i<result.length;i++){
-			double sum=0;
-			for(int j=0;j<vec.length;j++){
-				sum+=matrix[i][j]*vec[j];
-			}
-			result[i]=sum;
-		}
-		
-		return result;
-	}
-	
-	private static double[][] transposeMatrix(double[][] matrix){
-		double[][] result=new double[matrix[0].length][matrix.length];
-		for(int i=0;i<matrix.length;i++){
-			for(int j=0;j<matrix[i].length;j++){
-				result[j][i]=matrix[i][j];
-			}
-		}
-		
-		return result;
-	}
-	
-	private static double dotProduct(double[] v1,double[] v2){
-		if(v1.length!=v2.length){
-			throw new RuntimeException("vector's size don't match");
-		}
-		
-		double result=0;
-		for(int i=0;i<v1.length;i++){
-			result+=(v1[i]*v2[i]);
-		}
-		
-		return result;
-	}
+ 
 	
 	public static double[] stocGradAscent1(DoubleArrayDataSet ds,int numIter){
 		int m=ds.getRowNumber();
@@ -113,7 +62,7 @@ public class LogisticRegression {
 				int idx=allIndices.get(rndIdx);
 				allIndices.remove(rndIdx);
 				
-				double h=sigmoid(dotProduct(ds.data[idx], weights));
+				double h=MathTools.sigmoid(MathTools.dotProduct(ds.data[idx], weights));
 				double error=Double.valueOf(ds.labels[idx])-h;
 				for(int j=0;j<weights.length;j++){
 					weights[j]=weights[j]+alpha*error*ds.data[idx][j];
@@ -170,7 +119,7 @@ public class LogisticRegression {
 	}
 	
 	public static int classify(double[] weights,double[] vec){
-		double prob=sigmoid(dotProduct(weights, vec));
+		double prob=MathTools.sigmoid(MathTools.dotProduct(weights, vec));
 		
 		if(prob>0.5) return 1;
 		else return 0;
@@ -184,7 +133,7 @@ public class LogisticRegression {
 		double[] weights=new double[n];
 		Arrays.fill(weights, 1);
 		for(int i=0;i<m;i++){
-			double h=sigmoid(dotProduct(ds.data[i], weights));
+			double h=MathTools.sigmoid(MathTools.dotProduct(ds.data[i], weights));
 			double error=Double.valueOf(ds.labels[i])-h;
 			for(int j=0;j<weights.length;j++){
 				weights[j]=weights[j]+alpha*error*ds.data[i][j];
@@ -205,14 +154,14 @@ public class LogisticRegression {
 		for(int i=0;i<m;i++){
 			labelVec[i]=Double.valueOf(ds.labels[i]);
 		}
-		double[][] transposedMatrix=transposeMatrix(ds.data);
+		double[][] transposedMatrix=MathTools.transposeMatrix(ds.data);
 		for(int i=0;i<maxCycles;i++){
-			double[] h=maxtrixMultiply(ds.data, weights);
+			double[] h=MathTools.maxtrixMultiply(ds.data, weights);
 			for(int j=0;j<h.length;j++){
-				h[j]=sigmoid(h[j]);
+				h[j]=MathTools.sigmoid(h[j]);
 			}
-			double[] error=vecSubtraction(labelVec, h);
-			double[] vec=maxtrixMultiply(transposedMatrix, error);
+			double[] error=MathTools.vecSubtraction(labelVec, h);
+			double[] vec=MathTools.maxtrixMultiply(transposedMatrix, error);
 			for(int j=0;j<weights.length;j++){
 				weights[j]=weights[j]+alpha*vec[j];
 			}
