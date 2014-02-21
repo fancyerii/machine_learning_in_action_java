@@ -17,6 +17,19 @@ public class MathTools {
 		return result;
 	}
 	
+	public static double[] multiplyVec(double[] v1, double[] v2){
+		if(v1.length!=v2.length){
+			throw new RuntimeException("vector's size don't match");
+		}
+		
+		double[] result=new double[v1.length];
+		
+		for(int i=0;i<v1.length;i++){
+			result[i]=v1[i]*v2[i];
+		}
+		return result;
+	}
+	
 	public static double[] expandVec(double[] vec1,double[] vec2){
 		double[] v=new double[vec1.length+vec2.length];
 		int i=0;
